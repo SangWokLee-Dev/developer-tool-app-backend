@@ -38,7 +38,7 @@ resource "null_resource" "main" {
 
 resource "aws_lambda_function" "lambda_function" {
   filename      = "${path.module}/.terraform/archive_files/function.zip"
-  function_name = "lambda-hello-world"
+  function_name = "lambda_function"
   role          = aws_iam_role.lambda_role.arn
   handler       = "index.handler"
   runtime       = "nodejs16.x"
@@ -65,12 +65,12 @@ resource "aws_iam_role" "lambda_role" {
 }
 EOF
   inline_policy {
-    name = "lamda-hello-world-policy"
+    name = "lamda-role-policy"
     policy = jsonencode({
       "Version" : "2012-10-17",
       "Statement" : [
         {
-          "Sid" : "LambdaHelloWorld1",
+          "Sid" : "LambdaRolePolicy",
           "Effect" : "Allow",
           "Action" : [
             "logs:CreateLogGroup",
