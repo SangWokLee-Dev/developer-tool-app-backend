@@ -61,6 +61,7 @@ EOF
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
             "logs:PutLogEvents",
+            "lambda:InvokeFunction"
           ],
           "Resource" : "*"
         }
