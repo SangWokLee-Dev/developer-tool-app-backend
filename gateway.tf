@@ -15,6 +15,7 @@ resource "aws_api_gateway_method" "proxy" {
   http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.demo.id
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "lambda" {
@@ -72,4 +73,24 @@ resource "aws_api_gateway_authorizer" "demo" {
   type            = "COGNITO_USER_POOLS"
   identity_source = "method.request.header.Authorization"
   provider_arns   = [aws_cognito_user_pool.cognito-user-pool.arn]
+}
+
+
+resource "aws_api_gateway_usage_plan" "myusageplan" {
+  name = "my_usage_plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.example.id
+    stage  = aws_api_gateway_deployment.example.stage_name
+  }
+}
+
+resource "aws_api_gateway_api_key" "mykey" {
+  name = "my_key"
+}
+
+resource "aws_api_gateway_usage_plan_key" "main" {
+  key_id        = aws_api_gateway_api_key.mykey.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.myusageplan.id
 }
