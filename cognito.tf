@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "cognito-user-pool" {
-  name = "trams-backend-user-pool"
+  name = var.aws_cognito_name
 
   username_attributes = [
     "email"
@@ -32,7 +32,7 @@ resource "aws_cognito_user_pool_client" "cognito-user-pool-client" {
 }
 
 resource "aws_cognito_user_pool_domain" "cognito-user-pool-domain" {
-  domain       = "domain-auth"
+  domain       = var.aws_cognito_domain
   user_pool_id = aws_cognito_user_pool.cognito-user-pool.id
 }
 
