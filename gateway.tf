@@ -1,27 +1,27 @@
-resource "aws_api_gateway_rest_api" "example" {
-  name        = "ServerlessExample"
-  description = "Terraform Serverless Application Example"
+resource "aws_api_gateway_rest_api" "aws-api-gateway" {
+  name        = "aws-api-gateway"
+  description = "AWS API gateway"
 }
 
-resource "aws_api_gateway_resource" "proxy" {
-  rest_api_id = aws_api_gateway_rest_api.example.id
-  parent_id   = aws_api_gateway_rest_api.example.root_resource_id
+resource "aws_api_gateway_resource" "aws-api-gateway-resource" {
+  rest_api_id = aws_api_gateway_rest_api.aws-api-gateway.id
+  parent_id   = aws_api_gateway_rest_api.aws-api-gateway.root_resource_id
   path_part   = "endpoint"
 }
 
-resource "aws_api_gateway_method" "proxy" {
-  rest_api_id   = aws_api_gateway_rest_api.example.id
-  resource_id   = aws_api_gateway_resource.proxy.id
+resource "aws_api_gateway_method" "aws-api-gateway-method" {
+  rest_api_id   = aws_api_gateway_rest_api.aws-api-gateway.id
+  resource_id   = aws_api_gateway_resource.aws-api-gateway-resource.id
   http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.demo.id
+  authorizer_id = aws_api_gateway_authorizer.aws-api-gateway-authorizer.id
   api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "lambda" {
-  rest_api_id = aws_api_gateway_rest_api.example.id
-  resource_id = aws_api_gateway_method.proxy.resource_id
-  http_method = aws_api_gateway_method.proxy.http_method
+  rest_api_id = aws_api_gateway_rest_api.aws-api-gateway.id
+  resource_id = aws_api_gateway_method.aws-api-gateway-method.resource_id
+  http_method = aws_api_gateway_method.aws-api-gateway-method.http_method
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -36,15 +36,15 @@ resource "aws_lambda_permission" "apigw" {
 
   # The /*/* portion grants access from any method on any resource
   # within the API Gateway "REST API".
-  source_arn = "${aws_api_gateway_rest_api.example.execution_arn}/*/*"
+  source_arn = "${aws_api_gateway_rest_api.aws-api-gateway.execution_arn}/*/*"
 }
 
-resource "aws_api_gateway_deployment" "example" {
+resource "aws_api_gateway_deployment" "aws-api-gateway" {
   depends_on = [
     "aws_api_gateway_integration.lambda"
   ]
 
-  rest_api_id = aws_api_gateway_rest_api.example.id
+  rest_api_id = aws_api_gateway_rest_api.aws-api-gateway.id
   stage_name  = "test"
 
   triggers = {
@@ -56,8 +56,8 @@ resource "aws_api_gateway_deployment" "example" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.proxy.id,
-      aws_api_gateway_method.proxy.id,
+      aws_api_gateway_resource.aws-api-gateway-resource.id,
+      aws_api_gateway_method.aws-api-gateway-method.id,
       aws_api_gateway_integration.lambda.id,
     ]))
   }
@@ -67,30 +67,30 @@ resource "aws_api_gateway_deployment" "example" {
   }
 }
 
-resource "aws_api_gateway_authorizer" "demo" {
-  name            = "example-authorizer"
-  rest_api_id     = aws_api_gateway_rest_api.example.id
+resource "aws_api_gateway_authorizer" "aws-api-gateway-authorizer" {
+  name            = "aws-api-gateway-authorizer"
+  rest_api_id     = aws_api_gateway_rest_api.aws-api-gateway.id
   type            = "COGNITO_USER_POOLS"
   identity_source = "method.request.header.Authorization"
   provider_arns   = [aws_cognito_user_pool.cognito-user-pool.arn]
 }
 
 
-resource "aws_api_gateway_usage_plan" "myusageplan" {
-  name = "my_usage_plan"
+resource "aws_api_gateway_usage_plan" "aws-api-gateway-usage-plan" {
+  name = "aws-api-gateway-usage-plan"
 
   api_stages {
-    api_id = aws_api_gateway_rest_api.example.id
-    stage  = aws_api_gateway_deployment.example.stage_name
+    api_id = aws_api_gateway_rest_api.aws-api-gateway.id
+    stage  = aws_api_gateway_deployment.aws-api-gateway.stage_name
   }
 }
 
-resource "aws_api_gateway_api_key" "mykey" {
-  name = "my_key"
+resource "aws_api_gateway_api_key" "aws-api-gateway-api-key" {
+  name = "aws-api-gateway-api-key"
 }
 
-resource "aws_api_gateway_usage_plan_key" "main" {
-  key_id        = aws_api_gateway_api_key.mykey.id
+resource "aws_api_gateway_usage_plan_key" "aws-api-gateway-usage-paln-key" {
+  key_id        = aws_api_gateway_api_key.aws-api-gateway-api-key.id
   key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.myusageplan.id
+  usage_plan_id = aws_api_gateway_usage_plan.aws-api-gateway-usage-plan.id
 }

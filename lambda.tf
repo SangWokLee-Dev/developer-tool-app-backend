@@ -1,12 +1,12 @@
-data "archive_file" "main" {
+data "archive_file" "archive-file" {
   type        = "zip"
   source_dir  = "lambda/function"
   output_path = "${path.module}/.terraform/archive_files/function.zip"
 
-  depends_on = [null_resource.main]
+  depends_on = [null_resource.null_resource]
 }
 
-resource "null_resource" "main" {
+resource "null_resource" "null_resource" {
 
   triggers = {
     updated_at = timestamp()
@@ -24,16 +24,16 @@ resource "null_resource" "main" {
 resource "aws_lambda_function" "lambda_function" {
   filename      = "${path.module}/.terraform/archive_files/function.zip"
   function_name = "lambda_function"
-  role          = aws_iam_role.lambda_role.arn
+  role          = aws_iam_role.lambda-role.arn
   handler       = "index.handler"
   runtime       = "nodejs16.x"
   timeout       = 300
 
-  source_code_hash = data.archive_file.main.output_base64sha256
+  source_code_hash = data.archive_file.archive-file.output_base64sha256
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name               = "lambda_role"
+resource "aws_iam_role" "lambda-role" {
+  name               = "lambda-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

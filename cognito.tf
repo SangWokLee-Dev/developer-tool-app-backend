@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "cognito-user-pool" {
-  name = var.aws_cognito_name
+  name = var.aws_cognito_user_pool_name
 
   username_attributes = [
     "email"
@@ -22,17 +22,17 @@ resource "aws_cognito_user_pool" "cognito-user-pool" {
 }
 
 resource "aws_cognito_user_pool_client" "cognito-user-pool-client" {
-  name                                 = "trams-backend-user-pool-client"
+  name                                 = var.aws_cognito_user_pool_client_name
   user_pool_id                         = aws_cognito_user_pool.cognito-user-pool.id
   allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_flows                  = ["code"]
+  allowed_oauth_flows                  = var.aws_cognito_user_pool_client_allowed_oauth_flows
   allowed_oauth_scopes                 = ["openid"]
-  callback_urls                        = ["https://example.com/callback"]
+  callback_urls                        = var.aws_cognito_user_pool_client_callback_urls
   supported_identity_providers         = ["COGNITO"]
 }
 
 resource "aws_cognito_user_pool_domain" "cognito-user-pool-domain" {
-  domain       = var.aws_cognito_domain
+  domain       = var.aws_cognito_user_pool_domain
   user_pool_id = aws_cognito_user_pool.cognito-user-pool.id
 }
 
