@@ -1,7 +1,7 @@
 data "archive_file" "archive-file" {
   type        = "zip"
-  source_dir  = "lambda/function"
-  output_path = "${path.module}/.terraform/archive_files/function.zip"
+  source_dir  = "lambda/get_jobs_function"
+  output_path = "${path.module}/.terraform/archive_files/get_jobs_function.zip"
 
   depends_on = [null_resource.null_resource]
 }
@@ -17,12 +17,12 @@ resource "null_resource" "null_resource" {
     yarn
     EOF
 
-    working_dir = "${path.module}/lambda/function"
+    working_dir = "${path.module}/lambda/get_jobs_function"
   }
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  filename      = "${path.module}/.terraform/archive_files/function.zip"
+  filename      = "${path.module}/.terraform/archive_files/get_jobs_function.zip"
   function_name = "lambda_function"
   role          = aws_iam_role.lambda-role.arn
   handler       = "index.handler"
